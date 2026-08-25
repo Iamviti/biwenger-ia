@@ -58,16 +58,17 @@ def inject_style():
         .stTabs [data-baseweb="tab"][aria-selected="true"] {{ color: {MINT_DARK} !important; }}
         .stTabs [data-baseweb="tab"]:hover {{ color: {MINT_DARK} !important; }}
 
-        /* Botón de refrescar — icono tipo "material", sin relleno */
+        /* Botón de refrescar — icono tipo "material", sin relleno, visible en ambos temas */
         button[kind="tertiary"] {{
             background-color: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            color: #ffffff !important;
+            color: var(--text-color) !important;
             border-radius: 50% !important;
         }}
         button[kind="tertiary"]:hover {{
-            background-color: rgba(255, 255, 255, 0.12) !important;
+            background-color: rgba(128, 128, 128, 0.15) !important;
+            color: {MINT_DARK} !important;
         }}
 
         /* Botones normales (p.ej. filtros de posición en Mi Plantilla) — tarjeta clicable */
