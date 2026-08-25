@@ -60,13 +60,14 @@ git push -u origin main
 1. En [Render](https://render.com), **New → Web Service**, conecta el repo de GitHub.
 2. Nombre del servicio: el mismo que usaste en la URI de redirección de Google (paso 1).
 3. Build command: `pip install -r requirements.txt`
-4. Start command: `streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0`
+4. Start command: `streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --secrets.files=/etc/secrets/secrets.toml`
 5. Plan: *Free* (con el plan free, el disco se borra en cada reinicio — ver más abajo).
 6. En **Environment**, añade estas variables:
    - `BIWENGER_TOKEN`, `BIWENGER_LEAGUE_ID`, `BIWENGER_USER_ID` (las mismas de tu `.env`)
    - `ALLOWED_EMAIL` = tu email de Google (el mismo que añadiste como test user)
-7. En **Secret Files**, añade un archivo con ruta `.streamlit/secrets.toml` (plantilla en
-   `.streamlit/secrets.toml.example` de este repo) con:
+7. En **Secret Files**, el nombre del archivo NO admite rutas con `/` (Render siempre lo
+   monta en `/etc/secrets/<nombre>`, por eso el start command de arriba apunta ahí) — pon
+   solo `secrets.toml` como nombre, y de contenido (plantilla en `.streamlit/secrets.toml.example`):
    ```toml
    [auth]
    redirect_uri = "https://<nombre-de-tu-app>.onrender.com/oauth2callback"
