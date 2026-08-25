@@ -23,9 +23,13 @@ with get_connection() as conn:
             SELECT p.position, COUNT(*) FROM squad_ownership s
             JOIN players p ON p.id = s.player_id
             WHERE s.snapshot_date = ? AND s.league_user_id = ? AND p.team_id IS NOT NULL
+              AND p.id NOT IN (
+                  SELECT player_id FROM market_listings
+                  WHERE snapshot_date = (SELECT MAX(snapshot_date) FROM market_listings) AND seller_user_id = ?
+              )
             GROUP BY p.position
             """,
-            (latest_squad_date, BIWENGER_USER_ID),
+            (latest_squad_date, BIWENGER_USER_ID, BIWENGER_USER_ID),
         ).fetchall()
     )
     total_players = sum(position_counts.values())
@@ -258,8 +262,8 @@ else:
                 st.session_state["plantilla_pos_filter"] = pos
                 st.rerun()
         st.caption(
-            "Recuento de toda tu plantilla, incluidos los jugadores puestos en venta. "
-            "Haz clic en una posición para filtrar la tabla."
+            "No cuenta a los jugadores que ya tienes puestos en venta (igual que la tabla de abajo). "
+            "Haz clic en una posición para filtrar."
         )
 
         active_filter = st.session_state["plantilla_pos_filter"]
