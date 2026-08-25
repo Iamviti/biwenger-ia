@@ -53,6 +53,7 @@ with get_connection() as conn:
         entry = squad_scorer.score(player_id, name, position, status, team_id, pab, gp, ra, pls)
         squad_rows_data.append(
             {
+                "posición": position,
                 "jugador": name,
                 "estado": status if status != "ok" else "—",
                 "estado_info": status_info or "—",
@@ -67,7 +68,7 @@ with get_connection() as conn:
     squad_df = pd.DataFrame(
         squad_rows_data,
         columns=[
-            "jugador", "estado", "estado_info", "precio_compra", "valor_actual", "plusvalia",
+            "posición", "jugador", "estado", "estado_info", "precio_compra", "valor_actual", "plusvalia",
             "rating_sofascore", "minutos_sofascore", "puntuación",
         ],
     ).sort_values("puntuación", ascending=False)
@@ -235,13 +236,35 @@ else:
                     )
 
     with tab_plantilla:
-        m_total, m_pt, m_df, m_mc, m_dl = st.columns(5)
-        m_total.metric("Total", total_players)
-        m_pt.metric("Portero", position_counts.get("PT", 0))
-        m_df.metric("Defensas", position_counts.get("DF", 0))
-        m_mc.metric("Medios", position_counts.get("MC", 0))
-        m_dl.metric("Delanteros", position_counts.get("DL", 0))
-        st.caption("Recuento de toda tu plantilla, incluidos los jugadores puestos en venta.")
+        if "plantilla_pos_filter" not in st.session_state:
+            st.session_state["plantilla_pos_filter"] = None
+
+        position_filters = [
+            (None, "Total", total_players),
+            ("PT", "Portero", position_counts.get("PT", 0)),
+            ("DF", "Defensas", position_counts.get("DF", 0)),
+            ("MC", "Medios", position_counts.get("MC", 0)),
+            ("DL", "Delanteros", position_counts.get("DL", 0)),
+        ]
+        filter_cols = st.columns(5)
+        for col, (pos, label, count) in zip(filter_cols, position_filters):
+            is_active = st.session_state["plantilla_pos_filter"] == pos
+            if col.button(
+                f"{label} · {count}",
+                key=f"plantilla_filter_{pos or 'total'}",
+                use_container_width=True,
+                type="primary" if is_active else "secondary",
+            ):
+                st.session_state["plantilla_pos_filter"] = pos
+                st.rerun()
+        st.caption(
+            "Recuento de toda tu plantilla, incluidos los jugadores puestos en venta. "
+            "Haz clic en una posición para filtrar la tabla."
+        )
+
+        active_filter = st.session_state["plantilla_pos_filter"]
+        if active_filter:
+            squad_df = squad_df[squad_df["posición"] == active_filter]
 
         squad_df["valor_actual"] = squad_df["valor_actual"].apply(money)
         squad_df[["precio_compra", "plusvalia"]] = squad_df[["precio_compra", "plusvalia"]].apply(
@@ -262,7 +285,7 @@ else:
         st.dataframe(
             squad_df.rename(
                 columns={
-                    "jugador": "Jugador", "estado": "Estado", "estado_info": "Detalle",
+                    "posición": "Posición", "jugador": "Jugador", "estado": "Estado", "estado_info": "Detalle",
                     "precio_compra": "Precio de Compra", "valor_actual": "Valor Actual",
                     "plusvalia": "Plusvalía", "rating_sofascore": "Rating SofaScore",
                     "minutos_sofascore": "Minutos SofaScore", "puntuación": "Puntuación",

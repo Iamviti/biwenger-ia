@@ -59,15 +59,40 @@ def inject_style():
         .stTabs [data-baseweb="tab"]:hover {{ color: {MINT_DARK} !important; }}
 
         /* Botón de refrescar — icono tipo "material", sin relleno */
-        .stButton button, button[kind="primary"], button[kind="primaryFormSubmit"] {{
+        button[kind="tertiary"] {{
             background-color: transparent !important;
             border: none !important;
             box-shadow: none !important;
             color: #ffffff !important;
             border-radius: 50% !important;
         }}
-        .stButton button:hover, button[kind="primary"]:hover {{
+        button[kind="tertiary"]:hover {{
             background-color: rgba(255, 255, 255, 0.12) !important;
+        }}
+
+        /* Botones normales (p.ej. filtros de posición en Mi Plantilla) — tarjeta clicable */
+        button[kind="secondary"] {{
+            background-color: var(--secondary-background-color) !important;
+            border: 1px solid rgba(128, 128, 128, 0.25) !important;
+            border-top: 3px solid {MINT} !important;
+            border-radius: 8px !important;
+            color: var(--text-color) !important;
+        }}
+        button[kind="secondary"]:hover {{
+            border-color: {MINT_DARK} !important;
+            color: {MINT_DARK} !important;
+        }}
+        button[kind="primary"] {{
+            background-color: {MINT} !important;
+            border-color: {MINT} !important;
+            border-top: 3px solid {MINT_DARK} !important;
+            border-radius: 8px !important;
+            color: #14251d !important;
+        }}
+        button[kind="primary"]:hover {{
+            background-color: {MINT_DARK} !important;
+            border-color: {MINT_DARK} !important;
+            color: #ffffff !important;
         }}
 
         /* Estado vacío (sin datos todavía) */
@@ -130,7 +155,7 @@ def header(title, subtitle=None):
     with col_title:
         st.markdown(f'<div class="bw-title">{title}</div>', unsafe_allow_html=True)
     with col_refresh:
-        refresh_clicked = st.button("", icon=":material/refresh:", key="bw_refresh_btn")
+        refresh_clicked = st.button("", icon=":material/refresh:", key="bw_refresh_btn", type="tertiary")
     if subtitle:
         st.markdown(f'<div class="bw-subtitle">{subtitle}</div>', unsafe_allow_html=True)
 
