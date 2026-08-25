@@ -3,17 +3,12 @@ from contextlib import contextmanager
 
 from config import DB_PATH, SCHEMA_PATH
 
-
-@contextmanager
-def get_connection():
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA foreign_keys = ON")
-    try:
-        yield conn
-        conn.commit()
-    finally:
-        conn.close()
+# Se pone a True la primera vez que una conexión en este proceso comprueba el esquema —
+# evita repetir el CREATE TABLE/ALTER TABLE en cada consulta, pero garantiza que CUALQUIER
+# uso de get_connection() tenga las tablas listas aunque nunca se haya llamado a
+# fetch_data.py todavía (p.ej. la primera vez que se abre la app recién desplegada, con el
+# disco vacío en Render).
+_schema_ready = False
 
 
 def _ensure_columns(conn, table, columns):
@@ -24,19 +19,41 @@ def _ensure_columns(conn, table, columns):
             conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {coltype}")
 
 
+def _ensure_schema(conn):
+    global _schema_ready
+    if _schema_ready:
+        return
+    conn.executescript(SCHEMA_PATH.read_text())
+    _ensure_columns(
+        conn, "players",
+        [
+            ("status_info", "TEXT"),
+            ("played_home", "INTEGER"),
+            ("played_away", "INTEGER"),
+            ("points_home_blended", "INTEGER"),
+            ("points_away_blended", "INTEGER"),
+        ],
+    )
+    conn.commit()
+    _schema_ready = True
+
+
+@contextmanager
+def get_connection():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
+    _ensure_schema(conn)
+    try:
+        yield conn
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def init_db():
-    with get_connection() as conn:
-        conn.executescript(SCHEMA_PATH.read_text())
-        _ensure_columns(
-            conn, "players",
-            [
-                ("status_info", "TEXT"),
-                ("played_home", "INTEGER"),
-                ("played_away", "INTEGER"),
-                ("points_home_blended", "INTEGER"),
-                ("points_away_blended", "INTEGER"),
-            ],
-        )
+    with get_connection():
+        pass
 
 
 def upsert_teams(conn, teams):
