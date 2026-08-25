@@ -130,7 +130,7 @@ def header(title, subtitle=None):
     with col_title:
         st.markdown(f'<div class="bw-title">{title}</div>', unsafe_allow_html=True)
     with col_refresh:
-        refresh_clicked = st.button("🔄", help="Actualizar datos desde Biwenger y SofaScore", key="bw_refresh_btn")
+        refresh_clicked = st.button("", icon=":material/refresh:", key="bw_refresh_btn")
     if subtitle:
         st.markdown(f'<div class="bw-subtitle">{subtitle}</div>', unsafe_allow_html=True)
 
