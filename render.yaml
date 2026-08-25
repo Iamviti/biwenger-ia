@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: biwenger-ia
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: BIWENGER_TOKEN
+        sync: false
+      - key: BIWENGER_LEAGUE_ID
+        sync: false
+      - key: BIWENGER_USER_ID
+        sync: false
+      - key: ALLOWED_EMAIL
+        sync: false

@@ -1,0 +1,10 @@
+requests
+python-dotenv
+streamlit
+pandas
+pulp
+curl_cffi
+Authlib>=1.3.2
+
+# desarrollo (tests)
+pytest
