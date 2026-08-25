@@ -5,6 +5,7 @@ pandas
 pulp
 curl_cffi
 Authlib>=1.3.2
+httpx
 
 # desarrollo (tests)
 pytest
