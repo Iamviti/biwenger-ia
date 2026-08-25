@@ -80,6 +80,7 @@ with get_connection() as conn:
                 "Jugador": f"🔥 {e['name']}" if e["es_ganga"] else e["name"],
                 "Equipo": e["team"],
                 "Puntuación": e["score"],
+                "Titularidad": e["titularidad_note"] or "—",
                 "Precio de Mercado": e["price"],
                 "Puja Máxima Recomendada": e["puja_recomendada"],
                 "Mi Puja": e["my_bid"],
@@ -156,11 +157,12 @@ with tab_hoy:
             )
         st.caption(
             "🔥 = está entre los jugadores con mejor relación rendimiento/precio de toda la liga "
-            "(mismo criterio que Gangas Libres). Puja máxima recomendada = lo que tiene sentido ofrecer según "
-            "su rendimiento (comparado con lo que se paga de media en el mercado ahora mismo), si tu equipo lo "
-            "necesita en esa posición, si ya es una ganga y cuánta presión de puja hay en la liga (saldo "
-            "estimado de los demás managers) — nunca por debajo del precio de mercado ni por encima de tu "
-            "puja máxima permitida."
+            "(mismo criterio que Gangas Libres). Titularidad = minutos reales de SofaScore esta temporada si "
+            "los hay (si no, alineación prevista o tasa de aparición en Biwenger — mismo criterio que Gangas "
+            "Libres). Puja máxima recomendada = lo que tiene sentido ofrecer según su rendimiento (comparado "
+            "con lo que se paga de media en el mercado ahora mismo), si tu equipo lo necesita en esa posición, "
+            "si ya es una ganga y cuánta presión de puja hay en la liga (saldo estimado de los demás "
+            "managers) — nunca por debajo del precio de mercado ni por encima de tu puja máxima permitida."
         )
         st.dataframe(market_df, use_container_width=True, hide_index=True)
     else:
