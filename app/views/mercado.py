@@ -16,7 +16,7 @@ from analysis.lineup_optimizer import (
 from analysis.market_intelligence import estimate_rival_balances, price_trends
 from config import BIWENGER_USER_ID
 from db.database import get_connection
-from ui_style import header, inject_style, money
+from ui_style import empty_state, header, inject_style, money
 
 inject_style()
 header("Mercado")
@@ -164,11 +164,11 @@ with tab_hoy:
         )
         st.dataframe(market_df, use_container_width=True, hide_index=True)
     else:
-        st.info("Todavía no hay datos de mercado. Ejecuta `python scripts/fetch_data.py` primero.")
+        empty_state("Todavía no hay datos de mercado.")
 
 with tab_gangas:
     if not latest_squad_date:
-        st.info("Todavía no hay datos de plantilla. Ejecuta `python scripts/fetch_data.py` primero.")
+        empty_state("Todavía no hay datos de plantilla.")
     else:
         st.caption(
             "Jugadores libres (misma fórmula que el 11 ideal: puntos fantasy + calidad real de SofaScore + "
@@ -217,7 +217,7 @@ with tab_gangas:
 
 with tab_inteligencia:
     if not latest_squad_date:
-        st.info("Todavía no hay datos de plantilla. Ejecuta `python scripts/fetch_data.py` primero.")
+        empty_state("Todavía no hay datos de plantilla.")
     else:
         st.subheader("Especulación")
         with get_connection() as conn:

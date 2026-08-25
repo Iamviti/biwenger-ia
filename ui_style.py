@@ -58,17 +58,31 @@ def inject_style():
         .stTabs [data-baseweb="tab"][aria-selected="true"] {{ color: {MINT_DARK} !important; }}
         .stTabs [data-baseweb="tab"]:hover {{ color: {MINT_DARK} !important; }}
 
-        /* Botones */
+        /* Botón de refrescar — icono tipo "material", sin relleno */
         .stButton button, button[kind="primary"], button[kind="primaryFormSubmit"] {{
-            background-color: {MINT} !important;
-            border-color: {MINT} !important;
-            color: #14251d !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: #ffffff !important;
+            border-radius: 50% !important;
         }}
         .stButton button:hover, button[kind="primary"]:hover {{
-            background-color: {MINT_DARK} !important;
-            border-color: {MINT_DARK} !important;
-            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.12) !important;
         }}
+
+        /* Estado vacío (sin datos todavía) */
+        .bw-empty {{
+            text-align: center;
+            padding: 56px 24px;
+            background: var(--secondary-background-color);
+            border: 1px solid rgba(128, 128, 128, 0.25);
+            border-top: 3px solid {MINT};
+            border-radius: 8px;
+            margin: 12px 0 24px 0;
+        }}
+        .bw-empty-icon {{ font-size: 2.6rem; margin-bottom: 14px; }}
+        .bw-empty-text {{ font-size: 1.05rem; font-weight: 700; color: var(--text-color); margin-bottom: 6px; }}
+        .bw-empty-hint {{ font-size: 0.9rem; color: var(--text-color); opacity: 0.65; }}
 
         /* Radio y checkbox seleccionados (st.radio, filtros) */
         div[data-testid="stRadio"] label[data-baseweb="radio"] div:first-child {{
@@ -97,20 +111,38 @@ def money(value):
     return f"{sign}{abs(value):,.0f}".replace(",", ".")
 
 
+def empty_state(message, hint="Pulsa 🔄 arriba a la derecha para traer tus datos de Biwenger y SofaScore."):
+    """Aviso de "todavía no hay datos" con más presencia visual que un st.info suelto."""
+    st.markdown(
+        f"""
+        <div class="bw-empty">
+            <div class="bw-empty-icon">📭</div>
+            <div class="bw-empty-text">{message}</div>
+            <div class="bw-empty-hint">{hint}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def header(title, subtitle=None):
     col_title, col_refresh = st.columns([9, 1], vertical_alignment="center")
     with col_title:
         st.markdown(f'<div class="bw-title">{title}</div>', unsafe_allow_html=True)
     with col_refresh:
-        if st.button("🔄", help="Actualizar datos desde Biwenger y SofaScore", key="bw_refresh_btn"):
-            from scripts.fetch_data import main as fetch_all_data
-
-            with st.status("Actualizando datos...", expanded=True) as status:
-                try:
-                    fetch_all_data(log=status.write)
-                    status.update(label="Datos actualizados", state="complete")
-                except Exception as e:
-                    status.update(label=f"Fallo al actualizar: {e}", state="error")
-            st.rerun()
+        refresh_clicked = st.button("🔄", help="Actualizar datos desde Biwenger y SofaScore", key="bw_refresh_btn")
     if subtitle:
         st.markdown(f'<div class="bw-subtitle">{subtitle}</div>', unsafe_allow_html=True)
+
+    # Fuera de la columna estrecha del botón, a todo el ancho, para que el log no salga
+    # apretado en una franja vertical.
+    if refresh_clicked:
+        from scripts.fetch_data import main as fetch_all_data
+
+        with st.status("Actualizando datos...", expanded=True) as status:
+            try:
+                fetch_all_data(log=status.write)
+                status.update(label="Datos actualizados", state="complete")
+            except Exception as e:
+                status.update(label=f"Fallo al actualizar: {e}", state="error")
+        st.rerun()

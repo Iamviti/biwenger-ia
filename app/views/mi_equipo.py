@@ -8,7 +8,7 @@ from analysis.squad_upgrades import find_squad_upgrades
 from config import BIWENGER_USER_ID
 from db.database import get_connection
 from ui_pitch import render_pitch
-from ui_style import header, inject_style, money
+from ui_style import empty_state, header, inject_style, money
 
 inject_style()
 header("Mi Equipo")
@@ -101,7 +101,7 @@ def _with_fecha(players):
 
 
 if not latest_squad_date:
-    st.info("Todavía no hay datos de plantilla. Ejecuta `python scripts/fetch_data.py` primero.")
+    empty_state("Todavía no hay datos de plantilla.")
 else:
     tab_plantilla, tab_once, tab_sustituciones = st.tabs(["Mi Plantilla", "Once Ideal", "Posibles Sustituciones"])
 
